@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"wayne-yu.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="概述基本数据类型协议有两种最基本的类型。  整型 字符型整型Mysql协议整型有两种可能的编码  固定长度整型 Protocol::FixLengthInteger固定长度的整型优先把值存在最少的有意义的一系列字节中  int&lt;1&gt; int&lt;2&gt; int&lt;3&gt; int&lt;4&gt; int&lt;6&gt; int&lt;8&gt;  举例int&lt;3&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL">
+<meta property="og:url" content="http://wayne-yu.github.io/tech/Mysql%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="子非鱼">
+<meta property="og:description" content="概述基本数据类型协议有两种最基本的类型。  整型 字符型整型Mysql协议整型有两种可能的编码  固定长度整型 Protocol::FixLengthInteger固定长度的整型优先把值存在最少的有意义的一系列字节中  int&lt;1&gt; int&lt;2&gt; int&lt;3&gt; int&lt;4&gt; int&lt;6&gt; int&lt;8&gt;  举例int&lt;3&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-07-30T06:48:12.157Z">
+<meta property="article:author" content="Wayne Yu">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://wayne-yu.github.io/tech/Mysql%E5%8D%8F%E8%AE%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MySQL | 子非鱼</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">子非鱼</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://wayne-yu.github.io/tech/Mysql%E5%8D%8F%E8%AE%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Wayne Yu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="子非鱼">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQL
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-27 00:00:00" itemprop="dateCreated datePublished" datetime="2020-07-27T00:00:00+08:00">2020-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-30 14:48:12" itemprop="dateModified" datetime="2020-07-30T14:48:12+08:00">2020-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">协议解析</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><h2 id="基本数据类型"><a href="#基本数据类型" class="headerlink" title="基本数据类型"></a>基本数据类型</h2><p>协议有两种最基本的类型。</p>
+<ul>
+<li>整型</li>
+<li>字符型<h3 id="整型"><a href="#整型" class="headerlink" title="整型"></a>整型</h3>Mysql协议整型有两种可能的编码</li>
+</ul>
+<h4 id="固定长度整型-Protocol-FixLengthInteger"><a href="#固定长度整型-Protocol-FixLengthInteger" class="headerlink" title="固定长度整型 Protocol::FixLengthInteger"></a>固定长度整型 <strong>Protocol::FixLengthInteger</strong></h4><p>固定长度的整型优先把值存在最少的有意义的一系列字节中</p>
+<ul>
+<li>int&lt;1&gt;</li>
+<li>int&lt;2&gt;</li>
+<li>int&lt;3&gt;</li>
+<li>int&lt;4&gt;</li>
+<li>int&lt;6&gt;</li>
+<li>int&lt;8&gt;</li>
+</ul>
+<p><strong>举例</strong><br>int&lt;3&gt; 格式存储的1：01 00 00</p>
+<h4 id="长度编码Length-Encoded的整型-Protocol-LengthEncodedInteger"><a href="#长度编码Length-Encoded的整型-Protocol-LengthEncodedInteger" class="headerlink" title="长度编码Length-Encoded的整型 Protocol::LengthEncodedInteger"></a>长度编码Length-Encoded的整型 <strong>Protocol::LengthEncodedInteger</strong></h4><p>一个消耗1、3、4或9字节的整数，具体消耗依据其数值</p>
+<p>转换一个数值为一个Length-Encoded的整型</p>
+<ul>
+<li>如果值小于251，按照一个字节的整数存储</li>
+<li>如果值大于等于251且小于2^16按照 0xFC + 2字节整数存储</li>
+<li>如果值大于等于2^16且小于2^24按照 0xFD + 3字节整数存储</li>
+<li>如果值大于等于2^24且小于2^64按照 0xFE + 8字节整数存储</li>
+</ul>
+<div class="note default">
+            <p>MySQL3.22及以下 0xFE后接4个字节</p>
+          </div>
+
+<p>转换一个Length-Encoded整数为数值，需检查第一个字节</p>
+<ul>
+<li>如果小于0xFB，视作一个字节的整数</li>
+<li>如果为0xFC，跟着一个2字节整数</li>
+<li>如果为0xFD，跟着一个3字节整数</li>
+<li>如果为0xFE，跟着一个8字节整数</li>
+</ul>
+<div class="note warning">
+            <p>如果报的第一个字节是一个Length-Encoded整数，且值为0xFE,需要检查包的长度确定有足够空间容纳8个字节的整数。<br>如果不行，它可能是EOF包。</p>
+          </div>
+
+<p>根据上下文，第一个字节也可能有其他的含义</p>
+<ul>
+<li>如果是0xFB，在ProtocolText::ResultsetRow中代表NULL</li>
+<li>如果是0xFF，代表Err包的第一个字节（0xFF作为第一个字节的Length-Encode整型无定义）</li>
+</ul>
+<p>实现了int<lenenc>接口</p>
+<p><strong>举例</strong><br>FA – 250<br>FC FB 00 – 251</p>
+<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><p>协议中字符串有几种类型</p>
+<h4 id="Protocol-FixedLengthString"><a href="#Protocol-FixedLengthString" class="headerlink" title="Protocol::FixedLengthString"></a>Protocol::FixedLengthString</h4><p>Fixed-Length字符串有已知写死的长度。<br>如ERR-Packet的sql-state总是5字节长<br>实现了string<fix>接口</p>
+<h4 id="Protocol-NullTerminatedString"><a href="#Protocol-NullTerminatedString" class="headerlink" title="Protocol::NullTerminatedString"></a>Protocol::NullTerminatedString</h4><p>以00字节结束的字符串<br>实现了<code>string&lt;NUL&gt;</code>接口</p>
+<h4 id="Protocol-VariableLengthString"><a href="#Protocol-VariableLengthString" class="headerlink" title="Protocol::VariableLengthString"></a>Protocol::VariableLengthString</h4><p>字符串的长度由其他字段决定或者由运行时计算<br>实现了<code>string&lt;var&gt;</code>接口</p>
+<h4 id="Protocol-LengthEncodedString"><a href="#Protocol-LengthEncodedString" class="headerlink" title="Protocol::LengthEncodedString"></a>Protocol::LengthEncodedString</h4><p>以Length-Encoded整型为前缀，VariableLengthString的特殊情形。</p>
+<ul>
+<li>字段<ul>
+<li>length (<code>int&lt;lenenc&gt;</code>) 字符串长度</li>
+<li>string (<code>string&lt;fix&gt;</code>) len=$length 字符串本身<br>实现了<code>string&lt;lenenc&gt;</code>接口</li>
+</ul>
+</li>
+</ul>
+<h4 id="Protocol-RestOfPacketString"><a href="#Protocol-RestOfPacketString" class="headerlink" title="Protocol::RestOfPacketString"></a>Protocol::RestOfPacketString</h4><p>如果一个字符串是包的最后组成部分，它的长度可以通过包的总长度减去当前位置来计算<br>实现了<code>string&lt;EOF&gt;</code>接口</p>
+<h2 id="描述包"><a href="#描述包" class="headerlink" title="描述包"></a>描述包</h2><p>在文档中，通过定义每个包的payload来描述包，并且提供一个example显示包的发送包含其包头。</p>
+<p><type>描述包的字节序列</p>
+<table>
+<thead>
+<tr>
+<th><code>&lt;type&gt;</code></th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>int&lt;1&gt;</code></td>
+<td>1字节 Protocol::FixLengthInteger</td>
+</tr>
+<tr>
+<td><code>int&lt;2&gt;</code></td>
+<td>2字节 Protocol::FixLengthInteger</td>
+</tr>
+<tr>
+<td><code>int&lt;3&gt;</code></td>
+<td>3字节 Protocol::FixLengthInteger</td>
+</tr>
+<tr>
+<td><code>int&lt;4&gt;</code></td>
+<td>4字节 Protocol::FixLengthInteger</td>
+</tr>
+<tr>
+<td><code>int&lt;6&gt;</code></td>
+<td>6字节 Protocol::FixLengthInteger</td>
+</tr>
+<tr>
+<td><code>int&lt;8&gt;</code></td>
+<td>8字节 Protocol::FixLengthInteger</td>
+</tr>
+<tr>
+<td><code>int&lt;lenenc&gt;</code></td>
+<td>Protocol::LengthEncodedInteger</td>
+</tr>
+<tr>
+<td><code>string&lt;lenenc&gt;</code></td>
+<td>Protocol::LengthEncodedString</td>
+</tr>
+<tr>
+<td><code>string&lt;fix&gt;</code></td>
+<td>Protocol::FixedLengthString</td>
+</tr>
+<tr>
+<td><code>string&lt;var&gt;</code></td>
+<td>Protocol::VariableLengthString</td>
+</tr>
+<tr>
+<td><code>string&lt;EOF&gt;</code></td>
+<td>Protocol::RestOfPacketString</td>
+</tr>
+<tr>
+<td><code>string&lt;NUL&gt;</code></td>
+<td>Protocol::NullTerminatedString</td>
+</tr>
+</tbody></table>
+<div class="note default">
+            <p>一些包有可选字段或依据Protocol::CapabilityFlags有不同layout，作为Protocol::HandshakeResponse包的一部分发送</p>
+          </div>
+
+<h2 id="MySQL包"><a href="#MySQL包" class="headerlink" title="MySQL包"></a>MySQL包</h2><ul>
+<li>切分数据为（2^24-1）字节大小的数据包</li>
+<li>在每个块前加上一个包头</li>
+</ul>
+<p><strong>Protocol::Packet</strong></p>
+<ul>
+<li><p>payload<br>  最初四个字节组成报文头</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>int&lt;3&gt;</td>
+<td>payload_length</td>
+<td>payload的长度</td>
+</tr>
+<tr>
+<td>int&lt;1&gt;</td>
+<td>sequence_id</td>
+<td>序列号</td>
+</tr>
+<tr>
+<td>string<var></td>
+<td>payload</td>
+<td>len=$payload_length</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>example<br>  01 00 00 00 01 *length 1 *sequence_id 0x00 *payload 0x01</p>
+</li>
+</ul>
+<h3 id="发送16Mbyte以上的数据"><a href="#发送16Mbyte以上的数据" class="headerlink" title="发送16Mbyte以上的数据"></a>发送16Mbyte以上的数据</h3><p>如果payload大于等于(2^24-1)字节，包的长度为设置为(2^24-1)(FF FF FF)字节，直到payload剩余部分小于(2^24-1)字节。<br>发送一个16 777 215(2^24-1)字节长度的payload如下：<br>ff ff ff 00 …<br>00 00 00 01</p>
+<h3 id="序列号"><a href="#序列号" class="headerlink" title="序列号"></a>序列号</h3><p>sequence_id随每个包自增且可循环。从00开始，且新命令时重置为0。</p>
+<h2 id="通用响应包"><a href="#通用响应包" class="headerlink" title="通用响应包"></a>通用响应包</h2><p>对客户端发送的大多数命令，服务端返回下列包中的一个作为响应。</p>
+<ul>
+<li>OK_Packet</li>
+<li>ERR_Packet</li>
+<li>EOF_Packet</li>
+</ul>
+<h3 id="OK-Packet"><a href="#OK-Packet" class="headerlink" title="OK_Packet"></a>OK_Packet</h3><h3 id="ERR-Packet"><a href="#ERR-Packet" class="headerlink" title="ERR_Packet"></a>ERR_Packet</h3><h3 id="EOF-Packet"><a href="#EOF-Packet" class="headerlink" title="EOF_Packet"></a>EOF_Packet</h3><p>CLIENT_PROTOCOL_41下 EOF包包含警告数量和状态标志</p>
+<ul>
+<li>payload<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>int&lt;1&gt;</td>
+<td>header</td>
+<td>[FE]</td>
+</tr>
+<tr>
+<td>int&lt;2&gt;</td>
+<td>warnings</td>
+<td>警告数量</td>
+</tr>
+<tr>
+<td>int&lt;2&gt;</td>
+<td>status_flags</td>
+<td>状态标志</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h3 id="Status-Flags"><a href="#Status-Flags" class="headerlink" title="Status Flags"></a>Status Flags</h3><p>状态标志为位标志<br>| Flag | Value | Comment |<br>| — | — | — |<br>| SERVER_STATUS_IN_TRANS | 0x0001 | 事务是活动的 |<br>| SERVER_STATUS_AUTOCOMMIT | 0x0002 | 自动提交生效 |<br>| SERVER_MORE_RESULTS_EXISTS | 0x0008 | |<br>| SERVER_STATUS_NO_GOOD_INDEX_USED | 0x0010 | |<br>| SERVER_STATUS_NO_INDEX_USED | 0x0020 | |<br>| SERVER_STATUS_CURSOR_EXISTS | 0x0040 | 二进制协议结果集用来标识必须使用COM_STMT_FETCH获取行数据 |<br>| SERVER_STATUS_LAST_ROW_SENT | 0x0080 | |<br>| SERVER_STATUS_DB_DROPPED | 0x0100 | |<br>| SERVER_STATUS_NO_BACKSLASH_ESCAPES | 0x0200 | |<br>| SERVER_STATUS_METADATA | 0x0400 | |<br>| SERVER_QUERY_WAS_SLOW | 0x0800 | |<br>| SERVER_PS_OUT_PARAMS | 0x1000 | |<br>| SERVER_STATUS_IN_TRANS_READONLY | 0x2000 | 在只读事务里 |<br>| SERVER_SESSION_STATE_CHANGED | 0x4000 | 连接状态信息变更 |</p>
+<h1 id="连接阶段"><a href="#连接阶段" class="headerlink" title="连接阶段"></a>连接阶段</h1><p>连接阶段主要处理以下任务</p>
+<ul>
+<li>交换客户端和服务端的capabilities</li>
+<li>如需要，设置SSL通信通道</li>
+<li>根据服务器验证客户端</li>
+</ul>
+<h2 id="初始化Handshake"><a href="#初始化Handshake" class="headerlink" title="初始化Handshake"></a>初始化Handshake</h2><p>初始化握手从服务端发送初始化握手包开始，客户端可以选择要求SSL连接，然后发送握手响应包。</p>
+<h3 id="Capability协商"><a href="#Capability协商" class="headerlink" title="Capability协商"></a>Capability协商</h3><p>为了允许旧的客户端连接到新服务器，初始化握手包包含</p>
+<ul>
+<li>MySQL服务器版本</li>
+<li>服务器的capabilities<br>客户端应该只公布握手响应包中与服务器相同的功能<br>可以包含以下功能：</li>
+<li>状态标志的使用</li>
+<li>对错误代码使用MySQL状态</li>
+<li>身份验证方法</li>
+<li>SSL支持</li>
+<li>压缩</li>
+</ul>
+<h3 id="确定身份验证方法"><a href="#确定身份验证方法" class="headerlink" title="确定身份验证方法"></a>确定身份验证方法</h3><p>身份验证方法与用户账户绑定且存储在mysql.user的plugin列中。客户端在握手响应包中通知想要登陆的用户账户，直到那时服务端才会查找mysql.user表找到需要的用户认证方法。</p>
+<p>为了节省往返，服务端和客户端在初始化时就开始用乐观估计的身份验证方法交换验证信息。<br>如果客户端和服务端的验证方法不匹配，则服务端会发送验证方法交换请求包通知客户端。</p>
+<h2 id="认证阶段快速通道"><a href="#认证阶段快速通道" class="headerlink" title="认证阶段快速通道"></a>认证阶段快速通道</h2><p>如果客户端和服务端使用同一方法在初始化握手时生成认证数据，那么握手时第一轮验证数据交换就已经开始。</p>
+<h3 id="成功认证"><a href="#成功认证" class="headerlink" title="成功认证"></a>成功认证</h3><p>成功的快速认证通道步骤如下</p>
+<ol>
+<li>客户端连接服务器</li>
+<li>服务端在响应的初始化握手包中使用认证方法M</li>
+<li>客户端在发送的握手响应包中使用相同方法M</li>
+<li>客户端和服务端根据验证方法M的要求进一步交换数据包</li>
+<li>服务端返回OK_PACKET</li>
+</ol>
+<p>服务端在Step4中发送的更多认证数据包前缀为 0x01，以区别OK_PACKET或ERR_PACKET（使用本地密码方法可能不需要更多数据直接返回）</p>
+<h3 id="认证失败"><a href="#认证失败" class="headerlink" title="认证失败"></a>认证失败</h3><p>服务器通过返回ERR_PACKET来声明客户端不允许连接。步骤基本同上</p>
+<h2 id="认证方法不匹配"><a href="#认证方法不匹配" class="headerlink" title="认证方法不匹配"></a>认证方法不匹配</h2><p>设用户U使用的认证方法为M，如果服务器的生成初始化握手包中认证报文的默认方法与M不同或客户端生成握手响应包中认证响应的方法与M不同，则认证交换需要用正确的M方法重新开始。</p>
+<div class="note default">
+            <ol><li>即使客户端服务端握手时方法相同，与用户账户要求的方法不同，同样是不匹配</li><li>在4.1以上版本的服务端中默认的方法都是安全密码认证（Secure Password Authentication），mysql客户端通过–default-auth配置。只要服务端使用了安全密码认证，客户端设置为其他方式是没用意义的，会导致每次都发生不匹配。</li><li>当前的mysql客户端库还没实现根据服务器的初始化握手包使用相同方法生成握手响应包</li></ol>
+          </div>
+
+<h2 id="连接阶段的包"><a href="#连接阶段的包" class="headerlink" title="连接阶段的包"></a>连接阶段的包</h2><h3 id="Protocol-Handshake"><a href="#Protocol-Handshake" class="headerlink" title="Protocol::Handshake"></a>Protocol::Handshake</h3><p>为了允许服务器增加对新版本的支持，第一个字节定义了协议版本，3.21.0后使用的V10。V9不做整理</p>
+<h4 id="Protocol-HandshakeV10"><a href="#Protocol-HandshakeV10" class="headerlink" title="Protocol::HandshakeV10"></a>Protocol::HandshakeV10</h4><ul>
+<li>payload<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">1              [0a] protocol version</span><br><span class="line">string[NUL]    server version</span><br><span class="line">4              connection id</span><br><span class="line">string[8]      auth-plugin-data-part-1</span><br><span class="line">1              [00] filler</span><br><span class="line">2              capability flags (lower 2 bytes)</span><br><span class="line">  if more data in the packet:</span><br><span class="line">1              character set</span><br><span class="line">2              status flags</span><br><span class="line">2              capability flags (upper 2 bytes)</span><br><span class="line">  if capabilities &amp; CLIENT_PLUGIN_AUTH &#123;</span><br><span class="line">1              length of auth-plugin-data</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">1              [00]</span><br><span class="line">  &#125;</span><br><span class="line">string[10]     reserved (all [00])</span><br><span class="line">  if capabilities &amp; CLIENT_SECURE_CONNECTION &#123;</span><br><span class="line">string[$len]   auth-plugin-data-part-2 ($len&#x3D;MAX(13, length of auth-plugin-data - 8))</span><br><span class="line">  if capabilities &amp; CLIENT_PLUGIN_AUTH &#123;</span><br><span class="line">string[NUL]    auth-plugin name</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<h1 id="TEXT-Protocol"><a href="#TEXT-Protocol" class="headerlink" title="TEXT Protocol"></a>TEXT Protocol</h1><h2 id="COM-QUERY"><a href="#COM-QUERY" class="headerlink" title="COM_QUERY"></a>COM_QUERY</h2></li>
+</ul>
+<h1 id="Prepared-Statements"><a href="#Prepared-Statements" class="headerlink" title="Prepared Statements"></a>Prepared Statements</h1><p>Prepared Statements在MySQL引入增加了几个新命令</p>
+<ul>
+<li>COM_STMT_PREPARE</li>
+<li>COM_STMT_EXECUTE</li>
+<li>COM_STMT_CLOSE</li>
+<li>COM_STMT_RESET</li>
+<li>COM_STMT_SEND_LONG_DATA<br>同时定义了一个更加紧凑的结果集格式替代了ProtocolText::ResultSet来返回数据<br><a target="_blank" rel="noopener" href="https://dev.mysql.com/worklog/task/?id=2871">不是所有语句都可以预处理</a></li>
+</ul>
+<h2 id="Binary-Protocol-ResultSet"><a href="#Binary-Protocol-ResultSet" class="headerlink" title="Binary Protocol ResultSet"></a>Binary Protocol ResultSet</h2><p>二进制结果集与ProtocolText::ResultSet类似，只包含Binary Protocol ResultSet Row格式行数据。<br>ProtocolBinary::Resultset:</p>
+<ul>
+<li>Packets:<ul>
+<li>lenenc_int column_count &gt; 0<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">01 00 00 01 01</span><br></pre></td></tr></table></figure></li>
+<li>column_count * Protocol::ColumnDefinition<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1a 00 00 02 03 64 65 66    00 00 00 04 63 6f 6c 31 00   </span><br><span class="line">0c 08 00 06 00 00 00 fd    00 00 1f 00 00</span><br><span class="line"></span><br><span class="line">05 00 00 03 fe 00 00 02    00</span><br></pre></td></tr></table></figure></li>
+<li>none or many ProtocolBinary::ResultsetRow<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">09 00 00 04 00 00 06 66    6f 6f 62 61 72</span><br></pre></td></tr></table></figure></li>
+<li>EOF_Packet<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">05 00 00 05 fe 00 00 02    00</span><br></pre></td></tr></table></figure>
+<h2 id="Binary-Protocol-ResultSet-Row"><a href="#Binary-Protocol-ResultSet-Row" class="headerlink" title="Binary Protocol ResultSet Row"></a>Binary Protocol ResultSet Row</h2>二进制结果集行由 列数+2的Null位图 和 二进制协议值之中非NULL列组成。</li>
+</ul>
+</li>
+<li>payload<ul>
+<li>1 packet header[00]</li>
+<li>string[$len] 位图 (列数+7+2)/8 </li>
+<li>string[$len] values</li>
+</ul>
+</li>
+</ul>
+<h3 id="NULL-Bitmap"><a href="#NULL-Bitmap" class="headerlink" title="NULL-Bitmap"></a>NULL-Bitmap</h3><p>二进制协议发送NULL值作为位图中的位替代ProtocolText::ResultSetRow中的字节。null越多，效率越高。</p>
+<div class="note warning">
+            <p>对Binary Protocol Resultset Row来说数字字段和字段位置需要增加一个2的偏移量。对COM_STMT_EXECUTE偏移量为0。</p>
+          </div>
+
+<p>NULL位图需要足够的空间存储可能发送的列中为NULL的位。这个空间为（num-fields+7+偏移量）/8字节</p>
+<p>在位图里存储一个NULL位，需要根据 字段索引 计算 位图字节数（0开始）和 在该字节中的位位置（0开始）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">字节数 &#x3D; ((field-pos + offset)&#x2F;8)</span><br><span class="line">字节中位位置 &#x3D; ((field-pos + offset) % 8)</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/tech/%E7%99%BE%E4%B8%87%E6%9E%B6%E6%9E%84%E5%B8%88%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0_02/" rel="prev" title="百万架构师学习笔记（二）">
+      <i class="fa fa-chevron-left"></i> 百万架构师学习笔记（二）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/tech/Docker/" rel="next" title="Docker">
+      Docker <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">基本数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">整型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%BA%E5%AE%9A%E9%95%BF%E5%BA%A6%E6%95%B4%E5%9E%8B-Protocol-FixLengthInteger"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">固定长度整型 Protocol::FixLengthInteger</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%95%BF%E5%BA%A6%E7%BC%96%E7%A0%81Length-Encoded%E7%9A%84%E6%95%B4%E5%9E%8B-Protocol-LengthEncodedInteger"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">长度编码Length-Encoded的整型 Protocol::LengthEncodedInteger</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">字符串类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Protocol-FixedLengthString"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">Protocol::FixedLengthString</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Protocol-NullTerminatedString"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">Protocol::NullTerminatedString</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Protocol-VariableLengthString"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">Protocol::VariableLengthString</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Protocol-LengthEncodedString"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">Protocol::LengthEncodedString</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Protocol-RestOfPacketString"><span class="nav-number">1.1.2.5.</span> <span class="nav-text">Protocol::RestOfPacketString</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0%E5%8C%85"><span class="nav-number">1.2.</span> <span class="nav-text">描述包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL%E5%8C%85"><span class="nav-number">1.3.</span> <span class="nav-text">MySQL包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E9%80%8116Mbyte%E4%BB%A5%E4%B8%8A%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">发送16Mbyte以上的数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E5%8F%B7"><span class="nav-number">1.3.2.</span> <span class="nav-text">序列号</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%93%8D%E5%BA%94%E5%8C%85"><span class="nav-number">1.4.</span> <span class="nav-text">通用响应包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OK-Packet"><span class="nav-number">1.4.1.</span> <span class="nav-text">OK_Packet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ERR-Packet"><span class="nav-number">1.4.2.</span> <span class="nav-text">ERR_Packet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EOF-Packet"><span class="nav-number">1.4.3.</span> <span class="nav-text">EOF_Packet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Status-Flags"><span class="nav-number">1.4.4.</span> <span class="nav-text">Status Flags</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E9%98%B6%E6%AE%B5"><span class="nav-number">2.</span> <span class="nav-text">连接阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Handshake"><span class="nav-number">2.1.</span> <span class="nav-text">初始化Handshake</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Capability%E5%8D%8F%E5%95%86"><span class="nav-number">2.1.1.</span> <span class="nav-text">Capability协商</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">确定身份验证方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A4%E8%AF%81%E9%98%B6%E6%AE%B5%E5%BF%AB%E9%80%9F%E9%80%9A%E9%81%93"><span class="nav-number">2.2.</span> <span class="nav-text">认证阶段快速通道</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%90%E5%8A%9F%E8%AE%A4%E8%AF%81"><span class="nav-number">2.2.1.</span> <span class="nav-text">成功认证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A4%E8%AF%81%E5%A4%B1%E8%B4%A5"><span class="nav-number">2.2.2.</span> <span class="nav-text">认证失败</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A4%E8%AF%81%E6%96%B9%E6%B3%95%E4%B8%8D%E5%8C%B9%E9%85%8D"><span class="nav-number">2.3.</span> <span class="nav-text">认证方法不匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E9%98%B6%E6%AE%B5%E7%9A%84%E5%8C%85"><span class="nav-number">2.4.</span> <span class="nav-text">连接阶段的包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Protocol-Handshake"><span class="nav-number">2.4.1.</span> <span class="nav-text">Protocol::Handshake</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Protocol-HandshakeV10"><span class="nav-number">2.4.1.1.</span> <span class="nav-text">Protocol::HandshakeV10</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TEXT-Protocol"><span class="nav-number">3.</span> <span class="nav-text">TEXT Protocol</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#COM-QUERY"><span class="nav-number">3.1.</span> <span class="nav-text">COM_QUERY</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Prepared-Statements"><span class="nav-number">4.</span> <span class="nav-text">Prepared Statements</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Binary-Protocol-ResultSet"><span class="nav-number">4.1.</span> <span class="nav-text">Binary Protocol ResultSet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binary-Protocol-ResultSet-Row"><span class="nav-number">4.2.</span> <span class="nav-text">Binary Protocol ResultSet Row</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NULL-Bitmap"><span class="nav-number">4.2.1.</span> <span class="nav-text">NULL-Bitmap</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Wayne Yu"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Wayne Yu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wayne Yu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/canvas_lines.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
